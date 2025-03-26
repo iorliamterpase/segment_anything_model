@@ -1,13 +1,17 @@
 ##Clone this repo and cd into it
 
+
 ##Create a Virtual Environment.
 
 python -m venv venv
-source venv/bin/activate  # On Mac/Linux
-venv\Scripts\activate
+
+venv\scripts\activate
+
+python -m pip install --upgrade pip
 
 
 ##Install requirements.txt
+
 
 pip install \
 'git+https://github.com/facebookresearch/segment-anything.git'
