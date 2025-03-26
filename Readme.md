@@ -16,9 +16,13 @@ python -m pip install --upgrade pip
 pip install \
 'git+https://github.com/facebookresearch/segment-anything.git'
 pip install -q YOLO
-wget -q \
+
+##DOWNLOAD MODELS HERE.
+
 'https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth'
 pip install git+https://github.com/facebookresearch/segment-anything.git
+ yolov8n.pt
+
 
 
 ##Run inference on images
