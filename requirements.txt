@@ -13,3 +13,4 @@ Pillow==11.1.0
 ultralytics==8.3.95
 
 segment-anything==1.0.1 
+
