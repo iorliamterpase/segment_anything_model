@@ -34,7 +34,7 @@ uvicorn server:app --host 0.0.0.0 --port 8000
 #**When you run the scripts open the URL below on your terminal different from the terminal you ran your streamlit app.py or you can call the API on your streamlit app for testing.
 
 Open your browser and go to:
-👉 http://127.0.0.1:8000
+ http://127.0.0.1:8000
 
 #**Run inference on images**
 
@@ -46,5 +46,5 @@ pip install fastapi uvicorn
 
 uvicorn server:app --host 0.0.0.0 --port 8000
 
-#**When you run the scripts open the URL bellow on your terminal different from the terminal you ran your streamlit app.py
+#**When you run the scripts open the URL below on your terminal different from the terminal you ran your streamlit app.py
 
