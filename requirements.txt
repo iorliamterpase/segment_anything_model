@@ -14,3 +14,7 @@ ultralytics==8.3.95
 
 segment-anything==1.0.1 
 
+uvicorn==0.34.0
+
+fastapi==0.115.12
+

@@ -1,3 +1,4 @@
+import argparse
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import JSONResponse
 import numpy as np
@@ -14,6 +15,18 @@ from ultralytics import YOLO
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Argument parser setup
+parser = argparse.ArgumentParser(description="Start FastAPI app with configurable model settings.")
+parser.add_argument("--yolo_model_path", type=str, default="yolov8n.pt", help="Path to YOLOv8 model")
+parser.add_argument("--sam_checkpoint", type=str, default="sam_vit_h_4b8939.pth", help="Path to SAM checkpoint")
+parser.add_argument("--model_type", type=str, default="vit_h", help="Type of SAM model (e.g., vit_h, vit_b)")
+parser.add_argument("--conf_threshold", type=float, default=0.25, help="YOLOv8 confidence threshold")
+parser.add_argument("--host", type=str, default="0.0.0.0", help="Host to run the FastAPI server on")
+parser.add_argument("--port", type=int, default=8000, help="Port to run the FastAPI server on")
+
+# Parse args but keep the remainder for uvicorn
+args, _ = parser.parse_known_args()
+
 # Initialize FastAPI app
 app = FastAPI()
 
@@ -25,13 +38,11 @@ def read_root():
 # Load Models
 def load_models():
     try:
-        logger.info("Loading YOLOv8 model...")
-        yolov8_model = YOLO("yolov8n.pt")
+        logger.info(f"Loading YOLOv8 model from {args.yolo_model_path}...")
+        yolov8_model = YOLO(args.yolo_model_path)
         
-        logger.info("Loading SAM model...")
-        sam_checkpoint = "sam_vit_h_4b8939.pth"
-        model_type = "vit_h"
-        sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
+        logger.info(f"Loading SAM model ({args.model_type}) from {args.sam_checkpoint}...")
+        sam = sam_model_registry[args.model_type](checkpoint=args.sam_checkpoint)
         predictor = SamPredictor(sam)
         
         logger.info("Models loaded successfully")
@@ -60,8 +71,8 @@ async def detect_and_segment(file: UploadFile = File(...)):
         logger.info(f"Image shape: {image_np.shape}")
 
         # Run YOLOv8 for object detection
-        logger.info("Running YOLOv8 detection...")
-        results = yolov8_model.predict(source=image_np, conf=0.25)  # Increased confidence
+        logger.info(f"Running YOLOv8 detection with confidence threshold {args.conf_threshold}...")
+        results = yolov8_model.predict(source=image_np, conf=args.conf_threshold)
         
         # Log detection results
         all_boxes = []
@@ -122,6 +133,7 @@ async def detect_and_segment(file: UploadFile = File(...)):
         result_img = Image.fromarray(rgba_image)
         buf = BytesIO()
         result_img.save(buf, format="PNG")
+        buf.seek(0)  # Rewind the buffer
         logger.info("Processing completed successfully")
         
         return JSONResponse(
@@ -137,4 +149,5 @@ async def detect_and_segment(file: UploadFile = File(...)):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    logger.info(f"Starting FastAPI server at {args.host}:{args.port}")
+    uvicorn.run(app, host=args.host, port=args.port)
